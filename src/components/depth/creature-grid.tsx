@@ -2,7 +2,7 @@
 
 import { OceanZone, Creature } from "@/data/ocean-zones";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
 import CreatureModal from "./creature-modal";
@@ -21,6 +21,8 @@ interface Ball {
   vy: number;
   size: number;
   depth: number;
+  gridCol: number;
+  gridRow: number;
 }
 
 export default function CreatureGrid({ zone, zoneIndex }: CreatureGridProps) {
@@ -28,30 +30,73 @@ export default function CreatureGrid({ zone, zoneIndex }: CreatureGridProps) {
   const [selectedCreature, setSelectedCreature] = useState<Creature | null>(
     null,
   );
+  const [backgroundBubbles, setBackgroundBubbles] = useState<
+    Array<{
+      width: number;
+      height: number;
+      left: string;
+      top: string;
+      duration: number;
+      delay: number;
+    }>
+  >([]);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const isMounted = useRef(true);
 
   const getEmoji = (index: number) => {
     const emojis = ["☀️", "🌙", "✨", "🌑", "🦑"];
     return emojis[index];
   };
 
+  // Grid configuration
+  const gridCols = 3;
+
+  // Generate background bubbles only on client
+  useEffect(() => {
+    const bubbles = [...Array(6)].map((_, i) => ({
+      width: 40 + i * 20,
+      height: 40 + i * 20,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      duration: 10 + i * 2,
+      delay: i * 0.5,
+    }));
+    setBackgroundBubbles(bubbles);
+  }, []);
+
   // Initialize balls
   useEffect(() => {
     if (!containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
-    const newBalls: Ball[] = zone.creatures.map((creature, idx) => ({
-      id: `ball-${creature.name}-${idx}`,
-      creature,
-      x: Math.random() * (rect.width - 100),
-      y: Math.random() * (rect.height - 100),
-      vx: (Math.random() - 0.5) * 3,
-      vy: (Math.random() - 0.5) * 3,
-      size: 90,
-      depth: idx % 2 === 0 ? zone.depthFeet.min : zone.depthFeet.max,
-    }));
+    const cellWidth = rect.width / gridCols;
+    const cellHeight = cellWidth;
+
+    const newBalls: Ball[] = zone.creatures.map((creature, idx) => {
+      const col = idx % gridCols;
+      const row = Math.floor(idx / gridCols);
+
+      const cellMinX = col * cellWidth;
+      const cellMaxX = (col + 1) * cellWidth - 90;
+      const cellMinY = row * cellHeight;
+      const cellMaxY = (row + 1) * cellHeight - 90;
+
+      return {
+        id: `ball-${creature.name}-${idx}`,
+        creature,
+        x: cellMinX + Math.random() * (cellMaxX - cellMinX),
+        y: cellMinY + Math.random() * (cellMaxY - cellMinY),
+        vx: (Math.random() - 0.5) * 3,
+        vy: (Math.random() - 0.5) * 3,
+        size: 90,
+        depth: idx % 2 === 0 ? zone.depthFeet.min : zone.depthFeet.max,
+        gridCol: col,
+        gridRow: row,
+      };
+    });
 
     setBalls(newBalls);
   }, [zone.creatures, zoneIndex, zone.depthFeet.min, zone.depthFeet.max]);
@@ -70,43 +115,65 @@ export default function CreatureGrid({ zone, zoneIndex }: CreatureGridProps) {
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
-  // Animation loop
+  // Animation loop - FIXED
   useEffect(() => {
-    if (!containerRef.current || balls.length === 0) return;
+    if (!containerRef.current || balls.length === 0 || dimensions.width === 0)
+      return;
 
-    const animate = () => {
+    let lastTime = 0;
+    const fps = 60;
+    const interval = 1000 / fps;
+
+    const animate = (currentTime: number) => {
+      if (!isMounted.current) return;
+
+      // Throttle animation to 60fps
+      if (currentTime - lastTime < interval) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
+      lastTime = currentTime;
+
       setBalls((prevBalls) => {
         return prevBalls.map((ball) => {
+          const cellWidth = dimensions.width / gridCols;
+          const cellHeight = cellWidth;
+
+          const cellMinX = ball.gridCol * cellWidth;
+          const cellMaxX = (ball.gridCol + 1) * cellWidth - ball.size;
+          const cellMinY = ball.gridRow * cellHeight;
+          const cellMaxY = (ball.gridRow + 1) * cellHeight - ball.size;
+
           let newX = ball.x + ball.vx;
           let newY = ball.y + ball.vy;
           let newVx = ball.vx;
           let newVy = ball.vy;
 
-          // Bounce off walls
-          if (newX <= 0) {
-            newX = 0;
+          if (newX <= cellMinX) {
+            newX = cellMinX;
             newVx = Math.abs(ball.vx) * 0.95;
-          } else if (newX >= dimensions.width - ball.size) {
-            newX = dimensions.width - ball.size;
+          } else if (newX >= cellMaxX) {
+            newX = cellMaxX;
             newVx = -Math.abs(ball.vx) * 0.95;
           }
 
-          if (newY <= 0) {
-            newY = 0;
+          if (newY <= cellMinY) {
+            newY = cellMinY;
             newVy = Math.abs(ball.vy) * 0.95;
-          } else if (newY >= dimensions.height - ball.size) {
-            newY = dimensions.height - ball.size;
+          } else if (newY >= cellMaxY) {
+            newY = cellMaxY;
             newVy = -Math.abs(ball.vy) * 0.95;
           }
 
-          // Add slight randomness
-          if (Math.random() < 0.01) {
-            newVx += (Math.random() - 0.5) * 0.2;
-            newVy += (Math.random() - 0.5) * 0.2;
+          // Add slight randomness - but less frequently
+          if (Math.random() < 0.005) {
+            newVx += (Math.random() - 0.5) * 0.1;
+            newVy += (Math.random() - 0.5) * 0.1;
           }
 
           // Limit speed
-          const maxSpeed = 4;
+          const maxSpeed = 3;
           if (Math.abs(newVx) > maxSpeed) newVx = Math.sign(newVx) * maxSpeed;
           if (Math.abs(newVy) > maxSpeed) newVy = Math.sign(newVy) * maxSpeed;
 
@@ -124,12 +191,15 @@ export default function CreatureGrid({ zone, zoneIndex }: CreatureGridProps) {
     };
 
     animationRef.current = requestAnimationFrame(animate);
+
     return () => {
+      isMounted.current = false;
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
       }
     };
-  }, [dimensions, balls.length]);
+  }, [dimensions, balls.length]); // Remove 'balls' from dependencies
 
   // Handle bubble click
   const handleBubbleClick = (creature: Creature) => {
@@ -169,7 +239,7 @@ export default function CreatureGrid({ zone, zoneIndex }: CreatureGridProps) {
             }}
             onClick={() => handleBubbleClick(ball.creature)}
           >
-            {/* Bubble with creature - NOW SHOWING IMAGE! */}
+            {/* Bubble with creature */}
             <div
               className="relative w-full h-full rounded-full overflow-hidden border-2"
               style={{
@@ -219,15 +289,15 @@ export default function CreatureGrid({ zone, zoneIndex }: CreatureGridProps) {
         ))}
 
         {/* Background bubbles */}
-        {[...Array(6)].map((_, i) => (
+        {backgroundBubbles.map((bubble, i) => (
           <motion.div
             key={`bg-${i}`}
             className="absolute rounded-full bg-white/5"
             style={{
-              width: 40 + i * 20,
-              height: 40 + i * 20,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              width: bubble.width,
+              height: bubble.height,
+              left: bubble.left,
+              top: bubble.top,
             }}
             animate={{
               y: [0, -30, 0],
@@ -235,10 +305,10 @@ export default function CreatureGrid({ zone, zoneIndex }: CreatureGridProps) {
               opacity: [0.05, 0.15, 0.05],
             }}
             transition={{
-              duration: 10 + i * 2,
+              duration: bubble.duration,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: i * 0.5,
+              delay: bubble.delay,
             }}
           />
         ))}

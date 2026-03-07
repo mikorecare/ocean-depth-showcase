@@ -205,13 +205,13 @@ export const oceanZones: OceanZone[] = [
         creatures: [
             {
                 name: 'Anglerfish',
-                image: '/creatures/dragonfish.webp', // Using dragonfish as placeholder
+                image: '/creatures/anglerfish.png',
                 description: 'Nightmare fuel with a built-in fishing rod',
                 fact: 'Female anglerfish have a glowing lure to attract prey, and tiny males permanently attach to females like parasites!'
             },
             {
                 name: 'Giant squid',
-                image: '/creatures/collosal-squid.jpg',
+                image: '/creatures/giantsquid.webp',
                 description: 'Legendary deep-sea monster',
                 fact: 'Giant squid have eyes the size of basketballs - the largest in the animal kingdom - to spot sperm whales in the dark!'
             },
@@ -298,19 +298,19 @@ export const oceanZones: OceanZone[] = [
         creatures: [
             {
                 name: 'Tripod fish',
-                image: '/creatures/reef-fish.png', // Placeholder
+                image: '/creatures/tripodfish.jpg',
                 description: 'Stands on stilts waiting for food',
                 fact: 'They perch on long fins and face the current, waiting for food to drift into their mouths!'
             },
             {
                 name: 'Sea cucumbers',
-                image: '/creatures/seapig.webp',
+                image: '/creatures/seacucumber.jpg',
                 description: 'Vacuum cleaners of the deep',
                 fact: 'They breathe through their anus and can eject their guts to confuse predators!'
             },
             {
                 name: 'Deep-sea sharks',
-                image: '/creatures/frilledshark.webp',
+                image: '/creatures/greenland-shark.jpg',
                 description: 'Slow-moving abyssal predators',
                 fact: 'Greenland sharks can live for 400+ years - they don\'t reach maturity until 150 years old!'
             },
@@ -322,7 +322,7 @@ export const oceanZones: OceanZone[] = [
             },
             {
                 name: 'Grenadiers',
-                image: '/creatures/hatchetfish.png', // Placeholder
+                image: '/creatures/grenadier.jpg',
                 description: 'Most abundant deep-sea fish',
                 fact: 'They have massive heads and tapering bodies, and their otoliths (ear stones) can reveal their age like tree rings!'
             },
@@ -385,7 +385,7 @@ export const oceanZones: OceanZone[] = [
         creatures: [
             {
                 name: 'Giant tube worms',
-                image: '/creatures/seapig.webp', // Placeholder
+                image: '/creatures/worm.jpg',
                 description: 'Red plumes, no mouth or stomach',
                 fact: 'They have no digestive system - bacteria inside them convert chemicals into food!'
             },
@@ -403,7 +403,7 @@ export const oceanZones: OceanZone[] = [
             },
             {
                 name: 'Foraminifera',
-                image: '/creatures/rimicari.jpg', // Placeholder
+                image: '/creatures/foraminifera.webp',
                 description: 'Single-celled shell builders',
                 fact: 'These tiny creatures build intricate shells and have been found at the very bottom of Challenger Deep!'
             },

@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { oceanZones } from "@/data/ocean-zones";
 import DepthCreatures from "@/components/depth-creatures";
 import { useRef, useState, useEffect } from "react";
+import Footer from "@/components/footer";
 
 interface Bubble {
   id: number;
@@ -201,6 +202,9 @@ export default function Home() {
       <div className="relative">
         <DepthCreatures zones={oceanZones} />
       </div>
+
+      {/* Sources Footer - Small and subtle */}
+      <Footer />
     </main>
   );
 }

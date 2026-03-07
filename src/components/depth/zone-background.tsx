@@ -1,14 +1,15 @@
 "use client";
 
 import { OceanZone } from "@/data/ocean-zones";
+import { useRef, useEffect } from "react";
 
 interface ZoneBackgroundProps {
   zone: OceanZone;
   zoneIndex: number;
   children: React.ReactNode;
+  onZoneRef?: (ref: HTMLDivElement | null, index: number) => void;
 }
 
-// Realistic colors based on actual light penetration
 const getZoneGradient = (zoneIndex: number) => {
   if (zoneIndex === 0) {
     return `linear-gradient(180deg, 
@@ -37,16 +38,29 @@ export default function ZoneBackground({
   zone,
   zoneIndex,
   children,
+  onZoneRef,
 }: ZoneBackgroundProps) {
+  const zoneRef = useRef<HTMLDivElement>(null);
+  const hasNotifiedRef = useRef(false);
+
+  // Only notify parent once when ref is available
+  useEffect(() => {
+    if (zoneRef.current && onZoneRef && !hasNotifiedRef.current) {
+      onZoneRef(zoneRef.current, zoneIndex);
+      hasNotifiedRef.current = true;
+    }
+  }, [zoneIndex, onZoneRef]);
+
   return (
     <div
+      ref={zoneRef}
+      data-zone-index={zoneIndex}
       className="relative overflow-hidden"
       style={{
         height: "200vh",
         background: getZoneGradient(zoneIndex),
       }}
     >
-      {/* Wave overlay - more subtle in deep zones */}
       <div
         className="absolute inset-0"
         style={{
