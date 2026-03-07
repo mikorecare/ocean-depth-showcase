@@ -20,6 +20,8 @@ export default function DepthCreatures({ zones }: DepthCreaturesProps) {
   const [activeZone, setActiveZone] = useState<number | null>(null);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [scrollPercent, setScrollPercent] = useState(0);
+  const [currentDepth, setCurrentDepth] = useState({ meters: 0, feet: 0 });
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [currentSound, setCurrentSound] = useState<string>("/sounds/wave.mp3");
   const [zoneRefs, setZoneRefs] = useState<(HTMLDivElement | null)[]>([]);
@@ -39,12 +41,10 @@ export default function DepthCreatures({ zones }: DepthCreaturesProps) {
   useEffect(() => {
     if (!audioRef.current || !audioPlaying || activeZone === null) return;
 
-    // Clear previous timeout
     if (zoneChangeTimeout.current) {
       clearTimeout(zoneChangeTimeout.current);
     }
 
-    // Set new timeout to change sound after scrolling stops
     zoneChangeTimeout.current = setTimeout(() => {
       if (!mountedRef.current) return;
 
@@ -104,6 +104,31 @@ export default function DepthCreatures({ zones }: DepthCreaturesProps) {
     };
   }, []);
 
+  // Handle scroll updates
+  useEffect(() => {
+    if (!mounted) return;
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      const percent = Math.min(100, (scrollY / maxScroll) * 100);
+
+      setScrollPercent(percent);
+
+      // Calculate depth based on scroll percentage (max depth 36,000ft)
+      const depthFeet = Math.round((percent / 100) * 36000);
+      const depthMeters = Math.round(depthFeet * 0.3048);
+
+      setCurrentDepth({ meters: depthMeters, feet: depthFeet });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    // Initial call
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [mounted]);
+
   // Initialize zoneRefs array once
   useEffect(() => {
     if (!refsInitialized.current) {
@@ -116,9 +141,7 @@ export default function DepthCreatures({ zones }: DepthCreaturesProps) {
   const handleZoneRef = useCallback(
     (ref: HTMLDivElement | null, index: number) => {
       setZoneRefs((prev) => {
-        // Only update if the ref actually changed
         if (prev[index] === ref) return prev;
-
         const newRefs = [...prev];
         newRefs[index] = ref;
         return newRefs;
@@ -142,9 +165,7 @@ export default function DepthCreatures({ zones }: DepthCreaturesProps) {
           <span className="flex flex-row items-center gap-2">
             <WavesIcon size={16} /> SURFACE (0m / 0ft)
           </span>
-          <span id="depth-indicator" className="font-mono">
-            0m / 0ft
-          </span>
+          <span className="font-mono">0m / 0ft</span>
           <span className="flex flex-row gap-2 items-center">
             <Mountain size={16} /> 11,000m / 36,000ft
           </span>
@@ -160,8 +181,8 @@ export default function DepthCreatures({ zones }: DepthCreaturesProps) {
         <span className="flex flex-row items-center gap-2">
           <WavesIcon size={16} /> SURFACE (0m / 0ft)
         </span>
-        <span id="depth-indicator" className="font-mono">
-          0m / 0ft
+        <span className="font-mono">
+          {currentDepth.meters}m / {currentDepth.feet}ft
         </span>
         <span className="flex flex-row gap-2 items-center">
           <Mountain size={16} /> 11,000m / 36,000ft
@@ -197,13 +218,12 @@ export default function DepthCreatures({ zones }: DepthCreaturesProps) {
       {/* Scroll progress */}
       <div className="fixed bottom-4 left-4 z-50 bg-black/80 text-white text-xs p-2 rounded border border-white/20">
         <div>
-          Depth: <span id="scroll-depth">0%</span>
+          Depth: <span>{Math.round(scrollPercent)}%</span>
         </div>
         <div className="w-32 h-1 bg-gray-700 mt-1">
           <div
-            id="scroll-bar"
-            className="h-full bg-blue-400"
-            style={{ width: "0%" }}
+            className="h-full bg-blue-400 transition-all duration-150"
+            style={{ width: `${scrollPercent}%` }}
           />
         </div>
       </div>
@@ -212,24 +232,6 @@ export default function DepthCreatures({ zones }: DepthCreaturesProps) {
       <div className="fixed bottom-4 right-4 z-50 bg-black/60 text-white/60 text-[8px] p-1 rounded">
         1px = 1ft scale
       </div>
-
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-          window.addEventListener('scroll', function() {
-            const scrollY = window.scrollY;
-            const maxScroll = document.body.scrollHeight - window.innerHeight;
-            const percent = (scrollY / maxScroll) * 100;
-            document.getElementById('scroll-depth').textContent = Math.round(percent) + '%';
-            document.getElementById('scroll-bar').style.width = percent + '%';
-            
-            const depthFeet = Math.round(scrollY);
-            const depthMeters = Math.round(scrollY * 0.3048);
-            document.getElementById('depth-indicator').textContent = depthMeters + 'm / ' + depthFeet + 'ft';
-          });
-        `,
-        }}
-      />
     </div>
   );
 }

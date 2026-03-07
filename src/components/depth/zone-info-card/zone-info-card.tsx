@@ -261,7 +261,7 @@ export default function ZoneInfoCard({
       <motion.div
         style={{
           position: "absolute",
-          left: "15%",
+          left: "10%",
           top: "20%",
           transform: "translate(-50%, -50%)",
           zIndex: 50,

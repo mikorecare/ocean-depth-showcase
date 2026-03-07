@@ -132,12 +132,15 @@ export default function Home() {
           }}
         />
 
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/30" />
+        {/* Dark gradient overlay - subtle but effective */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
+
+        {/* Additional subtle radial gradient for depth */}
+        <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/20 to-black/40" />
 
         {/* Content */}
         <motion.div
-          className="relative z-10 text-center"
+          className="relative z-10 text-center px-4"
           style={{
             y: textY,
             opacity: opacity,
@@ -156,7 +159,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-xl md:text-2xl text-blue-100 mb-8 max-w-2xl mx-auto"
+            className="text-xl md:text-2xl text-blue-100 mb-8 max-w-2xl mx-auto drop-shadow"
           >
             From sunlit shallows to the hadal hell — explore Earth's final
             frontier
@@ -166,13 +169,33 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
+            className="space-y-4"
           >
             <Link
               href="#zones"
-              className="bg-white text-blue-900 px-8 py-3 rounded-full font-semibold hover:bg-blue-50 transition-colors inline-block"
+              className="bg-white text-blue-900 px-8 py-3 rounded-full font-semibold hover:bg-blue-50 transition-colors inline-block shadow-lg"
             >
               Start Your Descent
             </Link>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+            >
+              <p className="text-lg text-white/90 drop-shadow-lg">
+                Presented By:{" "}
+                <span
+                  className="font-bold text-cyan-400"
+                  style={{
+                    textShadow: "0 0 10px #06b6d4, 0 0 20px #06b6d4",
+                    animation: "pulseGlow 2s infinite",
+                  }}
+                >
+                  MIKO R.
+                </span>
+              </p>
+            </motion.div>
           </motion.div>
         </motion.div>
 
@@ -183,10 +206,35 @@ export default function Home() {
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         >
-          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
+          <div className="w-6 h-10 border-2 border-white/80 rounded-full flex justify-center backdrop-blur-sm bg-black/10">
+            <div className="w-1 h-3 bg-white/80 rounded-full mt-2"></div>
           </div>
         </motion.div>
+
+        <style jsx>{`
+          @keyframes pulseGlow {
+            0%,
+            100% {
+              text-shadow:
+                0 0 10px #06b6d4,
+                0 0 20px #06b6d4;
+            }
+            50% {
+              text-shadow:
+                0 0 20px #06b6d4,
+                0 0 40px #0284c7,
+                0 0 60px #0284c7;
+            }
+          }
+
+          .bg-radial-gradient {
+            background: radial-gradient(
+              circle at center,
+              transparent 0%,
+              rgba(0, 0, 0, 0.4) 100%
+            );
+          }
+        `}</style>
       </section>
 
       {/* Title section */}
@@ -199,7 +247,7 @@ export default function Home() {
       </section>
 
       {/* Main content */}
-      <div className="relative">
+      <div className="relative" id="zones">
         <DepthCreatures zones={oceanZones} />
       </div>
 
