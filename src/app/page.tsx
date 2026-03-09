@@ -241,7 +241,7 @@ export default function Home() {
       <section className="bg-gradient-to-b from-blue-900 to-blue-950 py-16 relative">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-white text-center">
-            Ocean Creatures by Depth
+            Ocean Depth Zones
           </h2>
         </div>
       </section>

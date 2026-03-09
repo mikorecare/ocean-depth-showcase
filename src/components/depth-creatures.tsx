@@ -34,7 +34,7 @@ export default function DepthCreatures({ zones }: DepthCreaturesProps) {
     if (zoneIndex === null || zoneIndex === 0) return "/sounds/wave.mp3";
     if (zoneIndex === 1) return "/sounds/wave2.mp3";
     if (zoneIndex === 2 || zoneIndex === 3) return "/sounds/wave3.mp3";
-    return "/sounds/wave3.mp3";
+    return "/sounds/wave4.mp3";
   }, []);
 
   // Handle zone changes with debounce

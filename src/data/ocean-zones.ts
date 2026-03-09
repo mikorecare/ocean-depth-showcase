@@ -414,8 +414,8 @@ export const oceanZones: OceanZone[] = [
                 fact: 'Rimicaris shrimp have a "light organ" on their backs that might sense heat from vents!'
             },
             {
-                name: 'Hadal snailfish',
-                image: '/creatures/mariana-snailfish.avif',
+                name: 'Blue Hadal snailfish',
+                image: '/creatures/blue-hadal.jpg',
                 description: 'Masters of the deep',
                 fact: 'They have transparent bodies and no swim bladder - the pressure would crush it anyway!'
             },
@@ -426,22 +426,16 @@ export const oceanZones: OceanZone[] = [
                 fact: 'They have no mouth or stomach - they secrete acid to dissolve bones and absorb nutrients through their skin!'
             },
             {
-                name: 'Vent fish',
-                image: '/creatures/vent-fish.jpg',
-                description: 'Heat lovers of the deep',
-                fact: 'These fish can withstand dramatic temperature changes - from near-freezing to 400°C vent water!'
+                name: 'Headless Chicken Monster: Sea Cucumbers',
+                image: '/creatures/headless-chicken.jpg',
+                description: 'A deep-sea cucumber that can actually swim using a fin-like veil',
+                fact: 'They are often spotted hovering just above the seafloor at hadal depths'
             },
             {
-                name: 'Yeti crab',
-                image: '/creatures/yeti-crab.png',
-                description: 'Furry vent dweller',
-                fact: 'They wave their arms in vent water to farm bacteria, then eat the bacteria like a garden!'
-            },
-            {
-                name: 'Rimicaris shrimp',
-                image: '/creatures/rimicari.jpg',
-                description: 'Eyeless vent shrimp',
-                fact: 'They swarm by the thousands around vents, with a heat-sensing organ on their backs instead of eyes!'
+                name: 'Benthesicymid Prawns',
+                image: '/creatures/hadal-shrimp.jpg',
+                description: 'These are the record-holding "true" shrimp, found as deep as 25,263 feet (7,703 meters)',
+                fact: 'Scientists believe they cannot survive below ~25,000 feet because their bodies cannot maintain enough TMAO (a protective molecule) to prevent their cells from being crushed by the extreme pressure.'
             }
         ],
         trivia: 'The Mariana Trench is so deep (36,000ft) that if you could walk straight down, it would take you over 2 hours of non-stop falling to reach the bottom! The pressure is equivalent to 50 jumbo jets stacked on your head! ✈️'
